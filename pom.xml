@@ -7,7 +7,19 @@
 	<groupId>life.genny</groupId>
 	<artifactId>apiq7</artifactId>
 	<version>7.25.0</version>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<distribution>repo</distribution>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+		</license>
+	</licenses>
+
+
 	<properties>
+		<qwanda-services.version>${project.version}</qwanda-services.version>
+
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
 		<maven.compiler.parameters>true</maven.compiler.parameters>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -20,7 +32,7 @@
 		<quarkus.platform.version>1.12.2.Final</quarkus.platform.version>
 		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 		<testcontainers.version>1.15.1</testcontainers.version>
-		
+
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -35,12 +47,30 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-grpc</artifactId>
+			<groupId>life.genny</groupId>
+			<artifactId>qwanda-services</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.vertx</groupId>
+					<artifactId>vertx-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+				<dependency>
+			<groupId>life.genny</groupId>
+			<artifactId>qwanda-utils</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.vertx</groupId>
+					<artifactId>vertx-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-hibernate-validator</artifactId>
+			<artifactId>quarkus-grpc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -127,49 +157,49 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
-								<plugin>
-						<groupId>pl.project13.maven</groupId>
-						<artifactId>git-commit-id-plugin</artifactId>
-						<version>2.2.3</version>
-						<executions>
-							<execution>
-								<id>git-info</id>
-								<goals>
-									<goal>revision</goal>
-								</goals>
-								<configuration>
-									<generateGitPropertiesFile>true</generateGitPropertiesFile>
-									<generateGitPropertiesFilename>target/classes/${project.name}-git.properties</generateGitPropertiesFilename>
-									<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-									<prefix>git</prefix>
-									<dateFormat>yyyy.MM.dd '@' HH:mm:ss z</dateFormat>
-									<dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
-									<verbose>false</verbose>
-									<generateGitPropertiesFile>true</generateGitPropertiesFile>
-									<generateGitPropertiesFilename>src/main/resources/${project.name}-git.properties</generateGitPropertiesFilename>
-									<format>properties</format>
-									<skipPoms>true</skipPoms>
-									<injectAllReactorProjects>false</injectAllReactorProjects>
-									<failOnNoGitDirectory>true</failOnNoGitDirectory>
-									<failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
-									<skip>false</skip>
-									<runOnlyOnce>false</runOnlyOnce>
-									<excludeProperties></excludeProperties>
-									<includeOnlyProperties></includeOnlyProperties>
-									<useNativeGit>false</useNativeGit>
-									<abbrevLength>7</abbrevLength>
-									<gitDescribe>
-										<skip>false</skip>
-										<always>false</always>
-										<abbrev>7</abbrev>
-										<dirty>-dirty</dirty>
-										<match>*</match>
-										<forceLongFormat>false</forceLongFormat>
-									</gitDescribe>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.2.3</version>
+				<executions>
+					<execution>
+						<id>git-info</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<configuration>
+							<generateGitPropertiesFile>true</generateGitPropertiesFile>
+							<generateGitPropertiesFilename>target/classes/${project.name}-git.properties</generateGitPropertiesFilename>
+							<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+							<prefix>git</prefix>
+							<dateFormat>yyyy.MM.dd '@' HH:mm:ss z</dateFormat>
+							<dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+							<verbose>false</verbose>
+							<generateGitPropertiesFile>true</generateGitPropertiesFile>
+							<generateGitPropertiesFilename>src/main/resources/${project.name}-git.properties</generateGitPropertiesFilename>
+							<format>properties</format>
+							<skipPoms>true</skipPoms>
+							<injectAllReactorProjects>false</injectAllReactorProjects>
+							<failOnNoGitDirectory>true</failOnNoGitDirectory>
+							<failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+							<skip>false</skip>
+							<runOnlyOnce>false</runOnlyOnce>
+							<excludeProperties></excludeProperties>
+							<includeOnlyProperties></includeOnlyProperties>
+							<useNativeGit>false</useNativeGit>
+							<abbrevLength>7</abbrevLength>
+							<gitDescribe>
+								<skip>false</skip>
+								<always>false</always>
+								<abbrev>7</abbrev>
+								<dirty>-dirty</dirty>
+								<match>*</match>
+								<forceLongFormat>false</forceLongFormat>
+							</gitDescribe>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
