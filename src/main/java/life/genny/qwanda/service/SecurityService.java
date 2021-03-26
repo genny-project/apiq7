@@ -1,0 +1,140 @@
+package life.genny.qwanda.service;
+
+import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
+
+import org.apache.logging.log4j.Logger;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
+
+import life.genny.qwanda.CoreEntity;
+import life.genny.qwandautils.QwandaUtils;
+import life.genny.models.GennyToken;
+
+/**
+ * Transactional Security Service
+ *
+ * @author Adam Crow
+ */
+
+@RequestScoped
+
+public class SecurityService implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Stores logger object.
+	 */
+	protected static final Logger log = org.apache.logging.log4j.LogManager
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+
+	@Context
+	SecurityContext sc;
+
+	@Inject
+	private HttpServletRequest request;
+
+	@Produces
+	public AccessToken getAccessToken() {
+		return ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getToken();
+	}
+
+	KeycloakSecurityContext kc = null;
+
+	Map<String, Object> user = new HashMap<String, Object>();
+
+	static boolean importMode = false;
+
+	@PostConstruct
+	public void init() {
+		if (!importMode) {
+			String token = ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getTokenString();
+			  GennyToken gennyToken = new GennyToken(token);
+			  
+			user.put("username",gennyToken.getUsername());
+			user.put("code",gennyToken.getUserCode());
+			user.put("realm", ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getRealm());
+			user.put("email", ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getToken()
+					.getEmail());
+			user.put("name",
+					((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getToken().getName());
+			;
+
+		}
+
+	}
+
+	public Boolean inRole(final String role) {
+		if (!importMode) {
+		return ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getToken().getRealmAccess()
+				.isUserInRole(role);
+		} else {
+			return true;
+		}
+	}
+
+	public String getRealm() {
+			 return ((KeycloakPrincipal)
+					 request.getUserPrincipal()).getKeycloakSecurityContext().getRealm();
+
+	}
+
+	public Map<String, Object> getUserMap() {
+		return user;
+	}
+
+	public boolean isAuthorised() {
+
+		return true;
+	}
+
+	private KeycloakSecurityContext getKeycloakUser() {
+		if (sc != null) {
+			if (sc.getUserPrincipal() != null) {
+				if (sc.getUserPrincipal() instanceof KeycloakPrincipal) {
+					final KeycloakPrincipal<KeycloakSecurityContext> kp = (KeycloakPrincipal<KeycloakSecurityContext>) sc
+							.getUserPrincipal();
+
+					return kp.getKeycloakSecurityContext();
+				}
+			}
+		}
+		// throw new SecurityException("Unauthorised User");
+		return null;
+	}
+
+	public String getUserCode()
+	{
+		String userCode = (String)getUserMap().get("code");
+		if (userCode == null) {
+			return "PER_SERVICE";  // TODO - Test this out!
+		} else {
+			return userCode;
+			// return "PER_"+QwandaUtils.getNormalisedUsername(username).toUpperCase();
+		}
+	}
+	
+	public static void setImportMode(final boolean mode) {
+		importMode = mode;
+	}
+
+	public String getToken() {
+		return ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext().getTokenString();
+
+	}
+
+}
